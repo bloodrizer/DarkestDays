@@ -1,8 +1,3 @@
-dojo.declare("classes.Core", null, {
-    
-});
-
-
 dojo.declare("classes.Meta", null, {
     meta: null,
 
@@ -36,3 +31,23 @@ dojo.declare("classes.Meta", null, {
         
     }
 });
+
+dojo.declare("classes.sim.World", null, {
+    calendar: null,
+    constructor: function(){
+        this.calendar = new classes.Calendar();
+    }
+});
+
+dojo.declare("classes.Server", null, {
+    world: null,
+
+    constructor: function(){
+        this.world = new classes.sim.World();
+    },
+
+    run: function(){
+
+    }
+});
+

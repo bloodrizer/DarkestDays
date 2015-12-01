@@ -14,9 +14,9 @@ DDViewport = React.createClass({
                 { 
                     id:"map", 
                     title: "Map",
-                    class: DDViewportTabDashboard
+                    class: DDViewportTab
                 },
-                {   id:"dashboard", title: "Dashboard", class: DDViewportTab  },
+                {   id:"dashboard", title: "Dashboard", class: DDViewportTabDashboard  },
                 {   id:"resources", title: "Resources", class: DDViewportTab  }
             ]
         }
@@ -24,7 +24,7 @@ DDViewport = React.createClass({
 
     getInitialState: function() {
         return {
-            selectedTab: "map"
+            selectedTab: "dashboard"
         }
     },
 
@@ -78,7 +78,11 @@ DDViewport = React.createClass({
             $r("div", {className: "view view-right navbar-through"},[
                 $r("div", {className: "navbar"}, [
                     $r("div", {className: "navbar-inner"}, [
-                        $r("div", {className: "center sliding"}, "Right View")
+                        $r("div", {className: "center sliding"}, [
+                            //--------------------- RIGHT PANEL HEADER (calendar, menu) ------------------
+                            $r(DDCalendar, {
+                            })
+                        ])
                     ])
                 ]),
                 $r("div", {className: "pages"},[
@@ -135,5 +139,14 @@ DDViewportTabButton = React.createClass({
 
     onclick: function(){
         this.props.onclick(this.props.id);
+    }
+});
+
+DDCalendar =  React.createClass({
+    render: function() {
+        var div = $r("div", {}, [
+           "30 NOV 2015"
+        ]);
+        return div;
     }
 });

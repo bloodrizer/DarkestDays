@@ -1,3 +1,5 @@
+var server;
+
 var $r = React.createElement;
 
 var $dd = {
@@ -22,12 +24,12 @@ var $dd = {
             }
         }
     } 
-}
+};
 
 window.onload = function(){
     setupFW7();
     setupServer();
-}
+};
 
 
 function setupFW7(){
@@ -42,5 +44,6 @@ function setupFW7(){
 }
 
 function setupServer(){
-    
+    server = new classes.Server();
+    server.run();
 }

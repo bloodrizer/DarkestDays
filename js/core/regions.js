@@ -2,11 +2,6 @@
  * All region-related logic goes there
  */
 
-
-dojo.declare("classes.sim.World", null, {
-
-});
-
 /**
  * Country model
  */
@@ -22,8 +17,18 @@ dojo.declare("classes.sim.Country", null, {
 dojo.declare("classes.sim.Region", null, {
     id : null,
     name: null,
-    simUnits: []
+    
+    //---------
+    simUnits: [],
+    res: null,
+    bld: null
 });
+
+/*dojo.declare("classes.sim.City", null, {
+    id : null,
+    name: null,
+    simUnits: []
+});*/
 
 /**
  * Simulation unit for a region (represents an uniform group of population)
