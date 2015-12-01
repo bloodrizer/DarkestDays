@@ -1,0 +1,50 @@
+
+.view-left{
+	float:left;
+    width:320px;
+    border-right:1px solid #b2b2b2;
+}
+	
+.view-main{
+    float:left;
+	width:-webkit-calc(100% - 321px - 320px);
+    width:-moz-calc(100% - 321px - 320px);
+    width:-ms-calc(100% - 321px - 320px);
+    width:calc(100% - 321px - 320px);
+}
+
+.view-right{
+    float:right;
+    width:321px;
+    border-left:1px solid #b2b2b2;
+}
+
+@media (max-width: 768px) {
+	.view-left{
+		width:240px;
+	}
+	.view-main{
+		width:-webkit-calc(100% - 241px);width:-moz-calc(100% - 241px);width:-ms-calc(100% - 241px);width:calc(100% - 241px);
+	}
+}
+
+/*------------ theme related stuff goes there -----------------*/
+.page {
+    background-color: #dcddce;
+}
+
+.viewport-button.selected {
+    background-color: #2e2e2c;
+    color: #dcddce !important;
+}
+
+.viewport-button {
+    background-color: #dcddce;
+    color: #2e2e2c !important;
+}
+
+.navbar {
+    background-color: #9b9c8e;
+}
+
+
