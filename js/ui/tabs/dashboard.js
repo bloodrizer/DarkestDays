@@ -15,9 +15,19 @@ DDViewportTabDashboard = React.createClass({
     },
     
     render: function() {
-        var div = $r("div", {className: "list-block"}, [
-            $r(DDRegionView, {}, [])
-        ]);
+        
+        var regions = $server.world.countries[0].regions;
+        var regionViews = [];
+        
+        for (var i in regions){
+            var r = regions[i];
+
+            regionViews.push($r(DDRegionView, {
+                title: r.name
+            }))
+        }
+        
+        var div = $r("div", {className: "list-block"}, regionViews);
         return div;
     }
 });
@@ -37,13 +47,29 @@ DDCollapsible = React.createClass({
             $r("div", {className: "accordion-item-content"}, this.props.children)
         ]);
         return div;
+
+        /*var div = $r("div", {className: "accordion-item"},[
+            $r("a", {className: "item-content item-link", href:"#"},[
+                $r("div", {className: "item-inner"},
+                    $r("div", {className: "item-title"}, this.props.title)
+                )
+            ]),
+            $r("div", {className: "accordion-item-content"}, this.props.children)
+        ]);
+        return div;*/
     }
 });
 
 
 DDRegionView = React.createClass({
+    getDefaultProps: function() {
+        return {
+            title: null
+        }
+    },
+    
     render: function() {
-        var div = $r(DDCollapsible, {title: "REGION NAME (Chelyabynsk)"},[
+        var div = $r(DDCollapsible, {title: this.props.title},[
             $r(DDCollapsible, {title: "Overview"},[
                 "Climate: D+, Ecology: E, Economy: F- (None)"
             ]),

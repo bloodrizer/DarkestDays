@@ -16,8 +16,9 @@ DDViewport = React.createClass({
                     title: "Map",
                     class: DDViewportTab
                 },
-                {   id:"dashboard", title: "Dashboard", class: DDViewportTabDashboard  },
-                {   id:"resources", title: "Resources", class: DDViewportTab  }
+                {   id:"dashboard",     title: "Dashboard", class: DDViewportTabDashboard  },
+                {   id:"resources",     title: "Resources", class: DDViewportTab  },
+                {   id:"economy",       title: "Economy", class: DDViewportTab  }
             ]
         }
     },

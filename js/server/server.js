@@ -34,8 +34,19 @@ dojo.declare("classes.Meta", null, {
 
 dojo.declare("classes.sim.World", null, {
     calendar: null,
+    
+    countries: null,
+    
     constructor: function(){
         this.calendar = new classes.Calendar();
+        this.countries = [];
+    },
+    
+    init: function(){
+        var country = new classes.sim.Country();
+        country.init();
+        
+        this.countries.push(country);   //TODO: use metawrappers
     }
 });
 
@@ -43,7 +54,10 @@ dojo.declare("classes.Server", null, {
     world: null,
 
     constructor: function(){
-        this.world = new classes.sim.World();
+        var world = new classes.sim.World();
+        world.init();
+        
+        this.world = world;
     },
 
     run: function(){
