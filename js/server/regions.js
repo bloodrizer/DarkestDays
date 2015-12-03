@@ -9,9 +9,12 @@ dojo.declare("classes.sim.Country", null, {
     id : null,
     name: null,
     regions: null,
+
+    resources: null,
     
     constructor: function(){
-       this.regions = []; 
+       this.regions = [];
+       this.resources = new classes.res.ResMeta($resMeta);
     },
     
     init: function(){
@@ -19,6 +22,10 @@ dojo.declare("classes.sim.Country", null, {
         region.name = "Chelyabinsk";
 
         this.regions.push(region);
+        
+        for (var res in $resMeta){
+            this.resources.get(res).set(10000);
+        }
     }
 });
 
@@ -49,11 +56,10 @@ dojo.declare("classes.sim.Region", null, {
      * 
      * 
      */
-    resources: null,
+    resourceDeposites: null,
     
     //---------
     simUnits: [],
-    res: null,
     bld: null
 });
 

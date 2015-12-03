@@ -1,36 +1,3 @@
-dojo.declare("classes.Meta", null, {
-    meta: null,
-
-    constructor: function(meta){
-        this.meta = meta;
-    },
-
-    get: function(meta, id){
-        if (!this.$metaCache){
-            this.$metaCache = {};
-        }
-
-        var val = this.$metaCache[id];
-        if (val){
-            return val;
-        }
-
-        for (var i in this.meta){
-            if (this.meta[i].id == id){
-                this.$metaCache[id] = this.meta[i];
-                return this.meta[i];
-            }
-        }
-    },
-    
-    save: function(){
-        
-    },
-    
-    load: function(){
-        
-    }
-});
 
 dojo.declare("classes.sim.World", null, {
     calendar: null,
@@ -44,6 +11,7 @@ dojo.declare("classes.sim.World", null, {
     
     init: function(){
         var country = new classes.sim.Country();
+        country.name = "Russia";
         country.init();
         
         this.countries.push(country);   //TODO: use metawrappers
@@ -52,6 +20,7 @@ dojo.declare("classes.sim.World", null, {
 
 dojo.declare("classes.Server", null, {
     world: null,
+    isDebug: false,
 
     constructor: function(){
         var world = new classes.sim.World();

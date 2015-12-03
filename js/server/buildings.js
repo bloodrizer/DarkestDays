@@ -11,6 +11,9 @@ var bldMeta = {
                     "oil"    : 10
                 }
             }
+        },
+        price: {
+            "steel": 10000
         }
     }
 }

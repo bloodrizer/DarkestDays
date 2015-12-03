@@ -18,7 +18,8 @@ DDViewport = React.createClass({
                 },
                 {   id:"dashboard",     title: "Dashboard", class: DDViewportTabDashboard  },
                 {   id:"resources",     title: "Resources", class: DDViewportTab  },
-                {   id:"economy",       title: "Economy", class: DDViewportTab  }
+                {   id:"economy",       title: "Economy", class: DDViewportTab  },
+                {   id:"trade",         title: "Trade", class: DDViewportTab  }
             ]
         }
     },
@@ -58,7 +59,9 @@ DDViewport = React.createClass({
             $r("div", {className: "view view-main navbar-through"},[
                 $r("div", {className: "navbar"}, [
                     $r("div", {className: "navbar-inner"}, [
-                        $r("div", {className: "center sliding"}, "Mid View")
+                        $r("div", {className: "center sliding"}, 
+                            $server.world.countries[0].name
+                        )
                     ])
                 ]),
                 $r("div", {className: "pages"},[
