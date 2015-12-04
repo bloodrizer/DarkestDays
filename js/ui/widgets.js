@@ -21,12 +21,15 @@ dojo.declare("classes.ui.ProgressCircle",null,{
             G_vmlCanvasManager.initElement(canvas);
         }
         var ctx = canvas.getContext('2d');
+        ctx.save();
 
         ctx.translate(this.opts.size / 2, this.opts.size / 2);
         ctx.rotate((-1 / 2 + this.opts.size.rotate / 180) * Math.PI);
         
         this._renderCircle(ctx, this.opts.bgColor, 100);
         this._renderCircle(ctx, this.opts.color, percent);
+
+        ctx.restore();
     },
     
     _renderCircle: function(ctx, color, percent){
@@ -45,7 +48,8 @@ dojo.declare("classes.ui.ProgressCircle",null,{
 
 UIProgressCircle = React.createClass({
 
-    progress: null,
+    progressBar: null,
+    handler: null,
     
     getDefaultProps: function() {
         return {
@@ -66,6 +70,15 @@ UIProgressCircle = React.createClass({
         );
     },
 
+    onTick: function(){
+        var progress = $server.tick / $server.ticksPerTurn * 100;
+        this.progressBar.render(progress);
+    },
+
+    componentWillMount: function () {
+        this.handler = dojo.connect($server, "onTick", this, "onTick");
+    },
+
     componentDidMount: function() {
         var container = React.findDOMNode(this);
         var self = this;
@@ -77,12 +90,12 @@ UIProgressCircle = React.createClass({
             color: this.props.color,
             width: this.props.width
         });
-        progress.render(50);
+        progress.render(0);
         
-        this.progress = progress;
+        this.progressBar = progress;
     },
 
     componentWillUnmount: function() {
-        
+        dojo.disconnect(this.handler);
     }
 });

@@ -6,6 +6,36 @@ DDViewportTab = React.createClass({
     }
 });
 
+DDGameProfiler = React.createClass({
+    getInitialState: function() {
+        return {
+            currentTime: 0,
+            avgTime: 0
+        }
+    },
+
+    componentWillMount: function () {
+        this.handler = dojo.connect($server, "onTick", this, "onTick");
+    },
+    
+    componentWillUnmount: function() {
+        dojo.disconnect(this.handler);
+    },
+
+    onTick: function(){
+        this.setState({
+            currentTime: $server.timer.currentTime,
+            averageTime: $server.timer.averageTime
+        });
+    },
+    
+    render: function(){
+        return $r("div", {},[
+            $r("span", {}, "Update time: " + this.state.currentTime + "ms, average: " + this.state.averageTime + "ms")
+        ]);
+    }
+});
+
 DDViewport = React.createClass({
 
     getDefaultProps: function() {
@@ -100,6 +130,7 @@ DDViewport = React.createClass({
                     }, [
                         $r("div", {className: "page-content"}, [
                             //-------------------------------------------- RIGHT goes there --------------------------
+                            $r(DDGameProfiler, {})
                         ])
                     ])
                 ])

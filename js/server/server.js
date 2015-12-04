@@ -21,6 +21,12 @@ dojo.declare("classes.sim.World", null, {
 dojo.declare("classes.Timer", null, {
     handlers: [],
 
+    ticksTotal: 0,
+    totalUpdateTime: 0,
+    
+    currentTime: 0,
+    averageTime: 0,
+
     addEvent: function(handler, frequency){
         this.handlers.push({
             handler: handler,
@@ -38,7 +44,25 @@ dojo.declare("classes.Timer", null, {
                 h.handler();
             }
         }
+    },
+    
+    beforeUpdate: function(){
+        this.timestampStart = new Date().getTime();
+    },
+    
+    afterUpdate: function(){
+        this.ticksTotal++;
+
+        var timestampEnd = new Date().getTime();
+
+        var tsDiff = timestampEnd - this.timestampStart;
+        this.totalUpdateTime += tsDiff;
+
+
+        this.currentTime = tsDiff;
+        this.averageTime = Math.round(this.totalUpdateTime / this.ticksTotal);
     }
+    
 });
 
 dojo.declare("classes.Server", null, {
@@ -46,9 +70,12 @@ dojo.declare("classes.Server", null, {
     isDebug: false,
     isPaused: false,
 
-    tickDelay: 1000,    //1 second
-
+    tickDelay: 50,    //1 second
+    ticksPerTurn: 50,
+    
     timer: null,
+    
+    $listeners: {},
 
     constructor: function(){
         var world = new classes.sim.World();
@@ -57,10 +84,38 @@ dojo.declare("classes.Server", null, {
         this.world = world;
         
         //------------------ timer ---------------------
-        var timer = new classes.Timer();
- 
-        this.timer = timer;
+        this.timer = new classes.Timer();
+        
+        this.addEvent(1, function(){
+            this.tick++;
+            this.ticksTotal++;
+        });
+        this.addEvent(this.ticksPerTurn, function(){
+            this.tick = 0;
+            this.onTurn();
+        });
     },
+
+    addEvent: function(delay, callback){
+        this.timer.addEvent(dojo.hitch(this, callback), delay);
+    },
+    
+    /*addListener: function(event, callback){
+        if (!this.$listeners[event]){
+            this.$listeners[event] = [];
+        }
+        this.$listeners[event].push(callback);
+    },
+    
+    notify: function(event){
+        var listeners = this.$listeners[event];
+        if (!listeners){
+            return;
+        }
+        for (var i in listeners){
+            listeners[i]();
+        }
+    },*/
 
     start: function(){
         if (!dojo.isIE && window.Worker){	//IE10 has a nasty security issue with running blob workers
@@ -71,7 +126,7 @@ dojo.declare("classes.Server", null, {
 
             this.worker = new Worker(blobURL);
             this.worker.addEventListener('message', dojo.hitch(this, function(e) {
-                this.tick();
+                this.onTick();
             }));
             this.worker.postMessage("tick");
         } else {
@@ -81,11 +136,17 @@ dojo.declare("classes.Server", null, {
         }
     },
 
-    tick: function() {
+    onTick: function() {
         if (this.isPaused) {
             return;
         }
-        console.log("tick")
+        this.timer.beforeUpdate();
+        this.timer.update();
+        this.timer.afterUpdate();
+    },
+
+    onTurn: function(){
+        //this.notify("onNewTurn");
     }
     
     
