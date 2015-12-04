@@ -15,19 +15,14 @@ dojo.declare("classes.Meta", null, {
             return val;
         }
 
-        console.log(this.meta);
-
         var $elem = this._getMetaWrapper(this.meta[id], id);
         this.$metaCache[id] = $elem;
         return $elem;
-        
-        /*for (var i in this.meta){
-            if (this.meta[i].id == id){
-                
-                this.$metaCache[id] = this.meta[i];
-                return this.meta[i];
-            }
-        }*/
+
+    },
+    
+    keys: function(){
+        return Object.keys(this.meta);
     },
 
     save: function(){

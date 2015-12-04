@@ -17,7 +17,7 @@ DDViewport = React.createClass({
                     class: DDViewportTab
                 },
                 {   id:"dashboard",     title: "Dashboard", class: DDViewportTabDashboard  },
-                {   id:"resources",     title: "Resources", class: DDViewportTab  },
+                {   id:"resources",     title: "Resources", class: DDResourcesTab  },
                 {   id:"economy",       title: "Economy", class: DDViewportTab  },
                 {   id:"trade",         title: "Trade", class: DDViewportTab  }
             ]
@@ -85,6 +85,10 @@ DDViewport = React.createClass({
                         $r("div", {className: "center sliding"}, [
                             //--------------------- RIGHT PANEL HEADER (calendar, menu) ------------------
                             $r(DDCalendar, {
+                            }),
+
+                            $r(UIProgressCircle, {
+                                size: 20
                             })
                         ])
                     ])

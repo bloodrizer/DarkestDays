@@ -28,7 +28,28 @@
 	}
 }
 
+
+/*--------------------------------------------------------------*/
+.resource-block  {
+    display: table;
+}
+
+.resource-row {
+    display: table-row;
+}
+
+.resource-row div {
+    display: table-cell;
+    padding: 5px;
+}
+
+.progress-circle {
+    padding-left: 5px;
+}
+
 /*------------ theme related stuff goes there -----------------*/
+
+
 .page {
     background-color: #dcddce;
 }

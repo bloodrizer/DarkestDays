@@ -45,5 +45,5 @@ function setupServer(){
     console.log("starting DD server...");
     
     $server = new classes.Server();
-    $server.run();
+    $server.start();
 }
