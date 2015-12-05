@@ -4,6 +4,47 @@ if (document.all && !window.localStorage) {
     window.LCstorage.removeItem = function () { };
 }
 
+dojo.declare("classes.Storage", null, {
+
+    storage: "com.nuclearunicorn.ddays.savedata",
+    data: null,
+
+    constructor: function(){
+        this.data = {};
+    },
+
+    load: function(){
+        var data = LCstorage[this.storage];
+        if (!data){
+            return;
+        }
+        try {
+            var saveData = JSON.parse(data);
+            if (saveData){
+                this.data = saveData;
+                console.log("loaded data:", saveData);
+            }
+        } catch (ex) {
+            console.error("Unable to load game data: ", ex);
+        }
+    },
+
+    save: function(){
+        LCstorage[this.storage] = JSON.stringify(this.data);
+    },
+
+    wipe: function(){
+        LCstorage[this.storage] = null;
+    }
+});
+
+dojo.declare("mixin.IDataStorageAware", null, {
+    constructor: function(){
+        dojo.subscribe("server/save", dojo.hitch(this, this.save));
+        dojo.subscribe("server/load", dojo.hitch(this, this.load));
+    }
+});
+
 
 dojo.declare("classes.sim.World", null, {
     calendar: null,
@@ -71,17 +112,12 @@ dojo.declare("classes.Timer", null, {
     
 });
 
-dojo.declare("classes.IO", null, {
+dojo.declare("classes.IO", [mixin.IDataStorageAware], {
     peer: null,
     peerList: null,
     
     constructor: function(){
         this.peerList = [];
-        
-        //this._initPeer(this.peerId);
-        
-        dojo.subscribe("server/save", dojo.hitch(this, this.save));
-        dojo.subscribe("server/load", dojo.hitch(this, this.load));
     },
     
     _initPeer: function(peerId){
@@ -126,39 +162,6 @@ dojo.declare("classes.IO", null, {
     }
 });
 
-dojo.declare("classes.Storage", null, {
-    
-    storage: "com.nuclearunicorn.ddays.savedata", 
-    data: null,
-    
-    constructor: function(){
-        this.data = {};
-    },
-    
-    load: function(){
-        var data = LCstorage[this.storage];
-        if (!data){
-            return;
-        }
-        try {
-            var saveData = JSON.parse(data);
-            if (saveData){
-                this.data = saveData;
-                console.log("loaded data:", saveData);
-            }
-        } catch (ex) {
-            console.error("Unable to load game data: ", ex);
-        }
-    },
-    
-    save: function(){
-       LCstorage[this.storage] = JSON.stringify(this.data);
-    },
-    
-    wipe: function(){
-        LCstorage[this.storage] = null;
-    }
-});
 
 
 dojo.declare("classes.Server", null, {
