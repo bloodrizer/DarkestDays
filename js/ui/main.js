@@ -27,6 +27,9 @@ var $dd = {
 window.onload = function(){
     setupServer();
     setupFW7();
+    
+    $server.load();
+    $server.start();
 };
 
 
@@ -45,5 +48,4 @@ function setupServer(){
     console.log("starting DD server...");
     
     $server = new classes.Server();
-    $server.start();
 }

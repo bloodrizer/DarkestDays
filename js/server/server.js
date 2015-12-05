@@ -1,3 +1,9 @@
+window.LCstorage = window.localStorage;
+if (document.all && !window.localStorage) {
+    window.LCstorage = {};
+    window.LCstorage.removeItem = function () { };
+}
+
 
 dojo.declare("classes.sim.World", null, {
     calendar: null,
@@ -67,12 +73,20 @@ dojo.declare("classes.Timer", null, {
 
 dojo.declare("classes.IO", null, {
     peer: null,
-    
     peerList: null,
     
-    constructor: function(peerId){
-        var self = this;
+    constructor: function(){
         this.peerList = [];
+        
+        //this._initPeer(this.peerId);
+        
+        dojo.subscribe("server/save", dojo.hitch(this, this.save));
+        dojo.subscribe("server/load", dojo.hitch(this, this.load));
+    },
+    
+    _initPeer: function(peerId){
+        var self = this;
+        console.log("initializing peer #", peerId);
         
         this.peer = new Peer({key: 'holam7za1x9u23xr'}, peerId);
         if (!peerId){
@@ -94,8 +108,58 @@ dojo.declare("classes.IO", null, {
     addPeer: function(destPeerId){
         var conn = this.peer.connect(destPeerId);
         console.log(conn);
+    },
+
+    save: function($server){
+        $server.storage.data["io"] = {
+            peerId: this.peerId
+        };
+    },
+    
+    load: function($server){
+        var io = $server.storage.data["io"];
+        if (io) {
+            this.peerId = io.peerId;
+        }
+        this._initPeer(this.peerId);
+        dojo.publish("io/update");
     }
 });
+
+dojo.declare("classes.Storage", null, {
+    
+    storage: "com.nuclearunicorn.ddays.savedata", 
+    data: null,
+    
+    constructor: function(){
+        this.data = {};
+    },
+    
+    load: function(){
+        var data = LCstorage[this.storage];
+        if (!data){
+            return;
+        }
+        try {
+            var saveData = JSON.parse(data);
+            if (saveData){
+                this.data = saveData;
+                console.log("loaded data:", saveData);
+            }
+        } catch (ex) {
+            console.error("Unable to load game data: ", ex);
+        }
+    },
+    
+    save: function(){
+       LCstorage[this.storage] = JSON.stringify(this.data);
+    },
+    
+    wipe: function(){
+        LCstorage[this.storage] = null;
+    }
+});
+
 
 dojo.declare("classes.Server", null, {
     world: null,
@@ -107,6 +171,7 @@ dojo.declare("classes.Server", null, {
     
     timer: null,
     io: null,
+    storage: null,
     
     $listeners: {},
 
@@ -127,30 +192,30 @@ dojo.declare("classes.Server", null, {
             this.tick = 0;
             this.onTurn();
         });
+        this.addEvent(50, function(){
+            this.save();
+        });
         
         this.io = new classes.IO();
+        this.storage = new classes.Storage();
     },
 
     addEvent: function(delay, callback){
         this.timer.addEvent(dojo.hitch(this, callback), delay);
     },
     
-    /*addListener: function(event, callback){
-        if (!this.$listeners[event]){
-            this.$listeners[event] = [];
-        }
-        this.$listeners[event].push(callback);
+    load: function(){
+        this.storage.load();
+        dojo.publish("server/load", this);
     },
-    
-    notify: function(event){
-        var listeners = this.$listeners[event];
-        if (!listeners){
-            return;
-        }
-        for (var i in listeners){
-            listeners[i]();
-        }
-    },*/
+
+    save: function(){
+        console.log("saving...");
+        dojo.publish("server/save", this);
+        
+        console.log("STORAGE SNAPSHOT", this.storage);
+        this.storage.save();  
+    },
 
     start: function(){
         if (!dojo.isIE && window.Worker){	//IE10 has a nasty security issue with running blob workers
@@ -183,8 +248,6 @@ dojo.declare("classes.Server", null, {
     onTurn: function(){
         //this.notify("onNewTurn");
     }
-    
-    
-    
+
 });
 
