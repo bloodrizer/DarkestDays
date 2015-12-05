@@ -65,6 +65,38 @@ dojo.declare("classes.Timer", null, {
     
 });
 
+dojo.declare("classes.IO", null, {
+    peer: null,
+    
+    peerList: null,
+    
+    constructor: function(peerId){
+        var self = this;
+        this.peerList = [];
+        
+        this.peer = new Peer({key: 'holam7za1x9u23xr'}, peerId);
+        if (!peerId){
+            this.peer.on('open', function(id) {
+                self.peerId = id;
+                dojo.publish("io/update");
+            });
+        } else {
+            this.peerId = peerId;
+        }
+
+        this.peer.on('connection', this.onConnect);
+    },
+
+    onConnect: function(conn){
+        console.log("PEER CONNECTED:", conn);
+    },
+    
+    addPeer: function(destPeerId){
+        var conn = this.peer.connect(destPeerId);
+        console.log(conn);
+    }
+});
+
 dojo.declare("classes.Server", null, {
     world: null,
     isDebug: false,
@@ -74,6 +106,7 @@ dojo.declare("classes.Server", null, {
     ticksPerTurn: 50,
     
     timer: null,
+    io: null,
     
     $listeners: {},
 
@@ -94,6 +127,8 @@ dojo.declare("classes.Server", null, {
             this.tick = 0;
             this.onTurn();
         });
+        
+        this.io = new classes.IO();
     },
 
     addEvent: function(delay, callback){

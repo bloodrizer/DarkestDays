@@ -36,6 +36,48 @@ DDGameProfiler = React.createClass({
     }
 });
 
+//============================================
+//                  Network
+//============================================
+
+DDNetworkProfiler = React.createClass({
+    getInitialState: function() {
+        return {
+            peerId: "n/a"
+        }
+    },
+
+    componentWillMount: function () {
+        var self = this;
+        this.handler = dojo.subscribe("io/update", function(){
+            self.setState({
+                peerId: $server.io.peerId
+            });
+        });
+    },
+
+    componentWillUnmount: function() {
+        dojo.unsubscribe(this.handler);
+    },
+
+    render: function(){
+        return $r("div", {},[
+            $r("span", {}, "Peer ID:" + this.state.peerId),
+            $r("input", {
+                type: "button",
+                value: "Add...",
+                onClick: function(){
+                    var targetPeerId = prompt("Please enter the peer id");
+                    if (targetPeerId){
+                        $server.io.addPeer(targetPeerId);
+                    }
+                }
+            })
+        ]);
+    }
+});
+
+
 DDViewport = React.createClass({
 
     getDefaultProps: function() {
@@ -130,7 +172,8 @@ DDViewport = React.createClass({
                     }, [
                         $r("div", {className: "page-content"}, [
                             //-------------------------------------------- RIGHT goes there --------------------------
-                            $r(DDGameProfiler, {})
+                            $r(DDGameProfiler, {}),
+                            $r(DDNetworkProfiler, {})
                         ])
                     ])
                 ])
