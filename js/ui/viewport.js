@@ -78,6 +78,37 @@ DDNetworkProfiler = React.createClass({
 });
 
 
+DDConsole = React.createClass({
+    render: function() {
+
+        var div = $r("div", {className: "console-content",
+            style:{
+                width: "100%"
+            }
+        },[
+            $r("div", {className: "messages"}),
+            $r("input", {
+                ref: "input",
+                type: "text",
+                style:{
+                    width: "100%"
+                },
+                onKeyDown: this.onSubmit
+            })
+        ]);
+        
+        return div;
+    },
+
+    onSubmit: function(event) {
+        if (event.keyCode == 13) {
+            //parse console
+            var input = React.findDOMNode(this.refs.input);
+            input.value = "";
+        }
+    }
+});
+
 DDViewport = React.createClass({
 
     getDefaultProps: function() {
@@ -138,15 +169,21 @@ DDViewport = React.createClass({
                 ]),
                 $r("div", {className: "pages"},[
                     $r("div", {
-                        className: "page",
+                        className: "page toolbar-fixed",
                         "data-page": "index-left"
                     }, [
+                        $r("div", {className: "toolbar"},
+                            $r("div", {className: "toolbar-inner"},[
+                                $r(DDConsole, {})
+                            ])
+                        ),
                         $r("div", {className: "page-content"}, [
                             //-------------------------------------------- MID goes there --------------------------
-                                $r(selectedTab.class, {
-                                    id: this.state.selectedTab
-                                })
+                            $r(selectedTab.class, {
+                                id: this.state.selectedTab
+                            })
                             //--------------------------------------------------------------------------------------
+
                         ])
                     ])
                 ])

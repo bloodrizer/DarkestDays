@@ -3,6 +3,10 @@ var $resMeta = {
         title: "Crude Oil",
         description: ""
     },
+    "coal": {
+        title: "Coal",
+        description: ""
+    },
     "energy": {
         title: "Energy",
         description: ""

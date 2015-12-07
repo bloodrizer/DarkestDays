@@ -42,24 +42,30 @@ DDCollapsible = React.createClass({
     },
 
     render: function() {
-        var div = $r("div", {className: "accordion-item"}, [
-            $r("div", {className: "accordion-item-toggle"}, this.props.title),
-            $r("div", {className: "accordion-item-content"}, this.props.children)
+        var div = $r("div", {className: "collapsible"}, [
+            $r("div", {className: "collapsible-title"}, this.props.title),
+            $r("div", {className: "collapsible-body"}, this.props.children)
         ]);
         return div;
-
-        /*var div = $r("div", {className: "accordion-item"},[
-            $r("a", {className: "item-content item-link", href:"#"},[
-                $r("div", {className: "item-inner"},
-                    $r("div", {className: "item-title"}, this.props.title)
-                )
-            ]),
-            $r("div", {className: "accordion-item-content"}, this.props.children)
-        ]);
-        return div;*/
     }
 });
 
+DDBuilding = React.createClass({
+    getDefaultProps: function() {
+        return {
+            id: "indefined",
+            title: "Undefined",
+            val: 0
+        }
+    },
+    render: function() {
+        var div = $r("div", {className: "building table-row"}, [
+            $r("div", {}, this.props.title),
+            $r("div", {}, this.props.val)
+        ]);
+        return div
+    }
+});
 
 DDRegionView = React.createClass({
     getDefaultProps: function() {
@@ -69,13 +75,29 @@ DDRegionView = React.createClass({
     },
     
     render: function() {
+        var bldMeta = $server.world.countries[0].regions[0].buildings;
+
+        var buildings = [];
+        //TODO: use $meta.foreach(callback)
+        
+        for (var i in bldMeta.meta){
+            var bld = bldMeta.get(i);
+            console.log(bld);
+            
+            buildings.push($r(DDBuilding, {
+                id: i,
+                title: bld.meta.title,
+                val: bld.meta.val
+            }));
+        }
+        
         var div = $r(DDCollapsible, {title: this.props.title},[
             $r(DDCollapsible, {title: "Overview"},[
                 "Climate: D+, Ecology: E, Economy: F- (None)"
             ]),
-            $r(DDCollapsible, {title: "Buildings"},[
-                "Nuclear Reactor: 1"
-            ])
+            $r(DDCollapsible, {title: "Buildings"}, 
+                $r("div", {className: "table-block"}, 
+                    buildings))
         ]);
         return div;
     }

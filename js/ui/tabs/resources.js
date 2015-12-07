@@ -15,14 +15,14 @@ DDResourcesTab = React.createClass({
             var res = country.resources.get(i);
 
             children.push($r("div", {
-                className: "resource-row"
+                className: "table-row"
             }, [
                 $r("div", {}, res.$().title),
                 $r("div", {}, res.get())
             ]));
         }
 
-        var div = $r("div", {className: "resource-block"}, children);
+        var div = $r("div", {className: "table-block"}, children);
         return div;
     }
 });

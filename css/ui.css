@@ -28,23 +28,39 @@
 	}
 }
 
+/*.tab-content {
+    height:calc(100% - 100px - 44px);
+}
+
+.console {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+}*/
+
 
 /*--------------------------------------------------------------*/
-.resource-block  {
+.table-block  {
     display: table;
 }
 
-.resource-row {
+.table-row {
     display: table-row;
 }
 
-.resource-row div {
+.table-row div {
     display: table-cell;
     padding: 5px;
 }
 
 .progress-circle {
     padding-left: 5px;
+}
+
+.console-inner {
+    border-top: 1px solid #9d9d9d;
+    padding: 5px;
 }
 
 /*------------ theme related stuff goes there -----------------*/

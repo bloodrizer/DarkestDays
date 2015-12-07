@@ -215,8 +215,6 @@ dojo.declare("classes.Server", null, {
     save: function(){
         console.log("saving...");
         dojo.publish("server/save", this);
-        
-        console.log("STORAGE SNAPSHOT", this.storage);
         this.storage.save();  
     },
 

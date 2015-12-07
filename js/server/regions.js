@@ -13,13 +13,16 @@ dojo.declare("classes.sim.Country", null, {
     resources: null,
     
     constructor: function(){
-       this.regions = [];
-       this.resources = new classes.res.ResMeta($resMeta);
+        this.regions = [];
+        this.resources = new classes.res.ResMeta($resMeta); /* move this to the getMeta() method */
+  
     },
     
     init: function(){
         var region = new classes.sim.Region();
         region.name = "Chelyabinsk";
+
+        region.init();
 
         this.regions.push(region);
         
@@ -60,7 +63,18 @@ dojo.declare("classes.sim.Region", null, {
     
     //---------
     simUnits: [],
-    bld: null
+
+    buildings: null,
+    
+    constructor: function() {
+        this.buildings = new classes.bld.BuildingMeta($bldMeta);
+    },
+    
+    init: function(){
+        for (var bld in $bldMeta){
+            this.buildings.get(bld).setVal(1);
+        }
+    }
 });
 
 /*dojo.declare("classes.sim.City", null, {
