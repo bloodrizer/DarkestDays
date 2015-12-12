@@ -39,6 +39,13 @@ dojo.declare("classes.Meta", null, {
 
     getClass: function(){
         return classes.MetaElement;
+    },
+    
+    foreach: function(handler, context){
+        for (var key in this.meta){
+            var elem = this.get(key);
+            dojo.hitch(context || this, handler)(elem);
+        }
     }
 });
 

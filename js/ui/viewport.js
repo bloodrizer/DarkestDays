@@ -51,7 +51,8 @@ DDNetworkProfiler = React.createClass({
         var self = this;
         this.handler = dojo.subscribe("io/update", function(){
             self.setState({
-                peerId: $server.io.peerId
+                peerId: $server.io.peerId,
+                peerList: $server.io.peerList
             });
         });
     },
@@ -72,13 +73,59 @@ DDNetworkProfiler = React.createClass({
                         $server.io.addPeer(targetPeerId);
                     }
                 }
-            })
+            }),
+            
+            this.renderPeers()
         ]);
+    },
+
+    renderPeers: function(){
+        var children = [];
+        for (var i in this.state.peerList){
+            var peer = this.state.peerList[i];
+            children.push($r("div", {
+                
+            },
+                peer.id
+            ));
+        }
+        
+        return children;
     }
 });
 
-
 DDConsole = React.createClass({
+    
+    messages: [],
+
+    getInitialState: function() {
+        return {
+            messages: []
+        }
+    },
+
+    componentWillMount: function () {
+        var self = this;
+        this.handler = dojo.subscribe("server/msg", function(msg){
+            self.addMessage(msg);
+        });
+    },
+
+    componentDidUpdate : function(){
+        // Automatically scroll to bottom
+        var con = React.findDOMNode(this.refs.console);
+        con.scrollTop = con.scrollHeight;
+    },
+    
+    addMessage: function(msg){
+        this.messages.push(msg);
+
+        this.setState({
+            messages: this.messages
+        });
+    },
+    
+    
     render: function() {
 
         var div = $r("div", {className: "console-content",
@@ -86,7 +133,12 @@ DDConsole = React.createClass({
                 width: "100%"
             }
         },[
-            $r("div", {className: "messages"}),
+            $r("div", {
+                    className: "messages",
+                    ref: "console"
+                },
+                this.renderMessages()
+            ),
             $r("input", {
                 ref: "input",
                 type: "text",
@@ -99,11 +151,29 @@ DDConsole = React.createClass({
         
         return div;
     },
+    
+    renderMessages: function(){
+        //TODO: use $r.map(array, transform method)
+        
+        var children = [];  
+        
+        console.log("Messages:", this.state.messages, "len:", this.state.messages.length);
+        
+        for (var i in this.state.messages){
+            var msg = this.state.messages[i];
+            children.push($r("div", {}, ":" + msg.msg));
+        }
+        
+        return children;
+    },
 
     onSubmit: function(event) {
         if (event.keyCode == 13) {
             //parse console
             var input = React.findDOMNode(this.refs.input);
+            this.addMessage({
+                msg: ">" + input.value
+            });
             input.value = "";
         }
     }
@@ -172,7 +242,7 @@ DDViewport = React.createClass({
                         className: "page toolbar-fixed",
                         "data-page": "index-left"
                     }, [
-                        $r("div", {className: "toolbar"},
+                        $r("div", {className: "toolbar console"},
                             $r("div", {className: "toolbar-inner"},[
                                 $r(DDConsole, {})
                             ])

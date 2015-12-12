@@ -22,7 +22,7 @@ var $bldMeta = {
         getEffects: function(){
             return {
                 $produce: {
-                    "coal"    : 10
+                    "coal" : 10
                 }
             }
         },
@@ -39,6 +39,11 @@ dojo.declare("classes.bld.Building", classes.MetaElement, {
 
     getVal: function(){
         return this.meta.val;
+    },
+    
+    produce(){
+        var effects = this.meta.getEffects();
+        return effects.$produce || {};
     }
 });
 
@@ -46,4 +51,10 @@ dojo.declare("classes.bld.BuildingMeta", classes.Meta, {
     getClass: function(){
         return classes.bld.Building;
     }
+    
+    /*update: function(){
+        this.foreach(function(bld){
+            var effects = bld.getEffects();
+        });
+    }*/
 });

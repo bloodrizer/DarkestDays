@@ -63,6 +63,16 @@
     padding: 5px;
 }
 
+/* TODO: use regular console and console-short types*/
+.console {
+    height: 200px;
+}
+
+.console-content .messages {
+    height: 160px;
+    overflow-y: scroll;
+}
+
 /*------------ theme related stuff goes there -----------------*/
 
 

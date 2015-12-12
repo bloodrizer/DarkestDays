@@ -45,6 +45,19 @@ dojo.declare("mixin.IDataStorageAware", null, {
     }
 });
 
+dojo.declare("mixin.IMessageAware", null, {
+    msg: function(message, category){
+        console.log("publishing message", message);
+        dojo.publish("server/msg", {
+            msg: message,
+            category: category
+        });
+    },
+    
+    msgSubscribe: function(hanlder){
+        dojo.subscribe("server/msg", handler);
+    }
+});
 
 dojo.declare("classes.sim.World", null, {
     calendar: null,
@@ -112,12 +125,12 @@ dojo.declare("classes.Timer", null, {
     
 });
 
-dojo.declare("classes.IO", [mixin.IDataStorageAware], {
+dojo.declare("classes.IO", [mixin.IDataStorageAware, mixin.IMessageAware], {
     peer: null,
     peerList: null,
     
     constructor: function(){
-        this.peerList = [];
+        this.peerList = {};
     },
     
     _initPeer: function(peerId){
@@ -128,7 +141,7 @@ dojo.declare("classes.IO", [mixin.IDataStorageAware], {
         if (!peerId){
             this.peer.on('open', function(id) {
                 self.peerId = id;
-                dojo.publish("io/update");
+                self.notifyUpdate();
             });
         } else {
             this.peerId = peerId;
@@ -143,7 +156,21 @@ dojo.declare("classes.IO", [mixin.IDataStorageAware], {
     
     addPeer: function(destPeerId){
         var conn = this.peer.connect(destPeerId);
-        console.log(conn);
+        var self = this;
+        
+        conn.on('open', function() {
+            self.peerList[destPeerId] = {
+                //redundancy department of redundancy
+                id: destPeerId
+            };
+            
+            //TODO: ping peer and request data
+            //then update id
+            
+            
+            self.notifyUpdate();
+            //TODO: attach message buss
+        });
     },
 
     save: function($server){
@@ -158,6 +185,10 @@ dojo.declare("classes.IO", [mixin.IDataStorageAware], {
             this.peerId = io.peerId;
         }
         this._initPeer(this.peerId);
+        dojo.publish("io/update");
+    },
+    
+    notifyUpdate: function(){
         dojo.publish("io/update");
     }
 });
@@ -248,6 +279,7 @@ dojo.declare("classes.Server", null, {
 
     onTurn: function(){
         //this.notify("onNewTurn");
+        this.world.countries[0].update();
     }
 
 });

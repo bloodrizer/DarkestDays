@@ -19,7 +19,7 @@ dojo.declare("classes.sim.Country", null, {
     },
     
     init: function(){
-        var region = new classes.sim.Region();
+        var region = new classes.sim.Region(this);
         region.name = "Chelyabinsk";
 
         region.init();
@@ -28,6 +28,12 @@ dojo.declare("classes.sim.Country", null, {
         
         for (var res in $resMeta){
             this.resources.get(res).set(10000);
+        }
+    },
+    
+    update: function(){
+        for (var i in this.regions){
+            this.regions[i].update();
         }
     }
 });
@@ -38,6 +44,9 @@ dojo.declare("classes.sim.Country", null, {
 dojo.declare("classes.sim.Region", null, {
     id : null,
     name: null,
+    
+    //parent country reference
+    country: null,
     
     //---------
     // population related stuff
@@ -66,7 +75,9 @@ dojo.declare("classes.sim.Region", null, {
 
     buildings: null,
     
-    constructor: function() {
+    constructor: function(country) {
+        this.country = country;
+        
         this.buildings = new classes.bld.BuildingMeta($bldMeta);
     },
     
@@ -74,6 +85,18 @@ dojo.declare("classes.sim.Region", null, {
         for (var bld in $bldMeta){
             this.buildings.get(bld).setVal(1);
         }
+    },
+    
+    update: function(){
+        
+        var countryRes = this.country.resources;
+
+        this.buildings.foreach(function(bld){
+            for (var resId in bld.produce()){
+                var res = this.country.resources.get(resId);
+                res.set(res.meta.val + bld.produce()[resId]);
+            }
+        }, this);
     }
 });
 
