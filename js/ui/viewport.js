@@ -51,8 +51,8 @@ DDNetworkProfiler = React.createClass({
         var self = this;
         this.handler = dojo.subscribe("io/update", function(){
             self.setState({
-                peerId: $server.io.peerId,
-                peerList: $server.io.peerList
+                peerId: $server.svc("io").peerId,
+                peerList: $server.svc("io").peerList
             });
         });
     },
@@ -63,14 +63,14 @@ DDNetworkProfiler = React.createClass({
 
     render: function(){
         return $r("div", {},[
-            $r("span", {}, "Peer ID:" + this.state.peerId),
+            $r("span", {}, "Peer ID: " + this.state.peerId),
             $r("input", {
                 type: "button",
                 value: "Add...",
                 onClick: function(){
                     var targetPeerId = prompt("Please enter the peer id");
                     if (targetPeerId){
-                        $server.io.addPeer(targetPeerId);
+                        $server.svc("io").addPeer(targetPeerId);
                     }
                 }
             }),
@@ -184,12 +184,13 @@ DDViewport = React.createClass({
     getDefaultProps: function() {
         return {
             tabs: [
+                {   id:"overview",     title: "Overview", class: DDOverviewTab  },
                 { 
                     id:"map", 
                     title: "Map",
                     class: DDViewportTab
                 },
-                {   id:"dashboard",     title: "Dashboard", class: DDViewportTabDashboard  },
+                {   id:"dashboard",     title: "Regions", class: DDViewportTabDashboard  },
                 {   id:"resources",     title: "Resources", class: DDResourcesTab  },
                 {   id:"economy",       title: "Economy", class: DDViewportTab  },
                 {   id:"trade",         title: "Trade", class: DDViewportTab  }

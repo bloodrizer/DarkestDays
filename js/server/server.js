@@ -80,6 +80,7 @@ dojo.declare("classes.sim.World", null, {
 
 dojo.declare("classes.Timer", null, {
     handlers: [],
+    scheduledHandlers: [],
 
     ticksTotal: 0,
     totalUpdateTime: 0,
@@ -121,6 +122,17 @@ dojo.declare("classes.Timer", null, {
 
         this.currentTime = tsDiff;
         this.averageTime = Math.round(this.totalUpdateTime / this.ticksTotal);
+    },
+
+    scheduleEvent: function(handler){
+        this.scheduledHandlers.push(handler)
+    },
+
+    updateScheduledEvents: function(){
+        for (var i in this.scheduledHandlers){
+            this.scheduledHandlers[i]();
+        }
+        this.scheduledHandlers = [];
     }
     
 });
@@ -132,26 +144,42 @@ dojo.declare("classes.IO", [mixin.IDataStorageAware, mixin.IMessageAware], {
     constructor: function(){
         this.peerList = {};
     },
+
+    /**
+     * TODO: use some peer wrapper?
+     * 
+     * @param peerId
+     * @private
+     */
     
     _initPeer: function(peerId){
         var self = this;
         console.log("initializing peer #", peerId);
         
-        this.peer = new Peer({key: 'holam7za1x9u23xr'}, peerId);
-        if (!peerId){
-            this.peer.on('open', function(id) {
-                self.peerId = id;
-                self.notifyUpdate();
-            });
-        } else {
-            this.peerId = peerId;
-        }
-
-        this.peer.on('connection', this.onConnect);
+        this.peer = new Peer(peerId, {key: 'holam7za1x9u23xr'});
+        this.peer.on('open', function(id) {
+            console.log("peer to server connection established");
+            
+            self.peerId = id;
+            self.notifyUpdate();
+        });
+        
+        this.peer.on('error', function(err){
+            console.log("PEER ERROR:", err);
+        });
+        this.peer.on('connection', dojo.hitch(this, this.onConnect));
     },
 
     onConnect: function(conn){
         console.log("PEER CONNECTED:", conn);
+        
+        var remotePeerId = conn.peer;
+        this.msg(remotePeerId + " has connected");
+
+        this.peerList[remotePeerId] = {
+            id: remotePeerId,
+            conn: conn
+        }
     },
     
     addPeer: function(destPeerId){
@@ -161,7 +189,8 @@ dojo.declare("classes.IO", [mixin.IDataStorageAware, mixin.IMessageAware], {
         conn.on('open', function() {
             self.peerList[destPeerId] = {
                 //redundancy department of redundancy
-                id: destPeerId
+                id: destPeerId,
+                conn: conn
             };
             
             //TODO: ping peer and request data
@@ -173,14 +202,14 @@ dojo.declare("classes.IO", [mixin.IDataStorageAware, mixin.IMessageAware], {
         });
     },
 
-    save: function($server){
-        $server.storage.data["io"] = {
+    save: function($data){
+        $data["io"] = {
             peerId: this.peerId
         };
     },
     
-    load: function($server){
-        var io = $server.storage.data["io"];
+    load: function($data){
+        var io = $data["io"];
         if (io) {
             this.peerId = io.peerId;
         }
@@ -193,7 +222,26 @@ dojo.declare("classes.IO", [mixin.IDataStorageAware, mixin.IMessageAware], {
     }
 });
 
-
+dojo.declare("classes.OfflineManager", [mixin.IDataStorageAware, mixin.IMessageAware], {
+    save: function($data){
+        $data["offline"] = {
+            timestamp: Date.now()
+        }
+    },
+    
+    load: function($data){
+        if (!$data["offline"]){
+            return;
+        }
+        var timestamp = Date.now();
+        var delta = timestamp - ( $data["offline"].timestamp || 0 );
+        if (delta <= 0){
+            return;
+        }
+        
+        this.msg("Timestamp delta is: " + delta + " seconds");
+    }
+});
 
 dojo.declare("classes.Server", null, {
     world: null,
@@ -202,14 +250,23 @@ dojo.declare("classes.Server", null, {
 
     tickDelay: 50,    //1 second
     ticksPerTurn: 50,
-    
-    timer: null,
-    io: null,
-    storage: null,
-    
-    $listeners: {},
 
+    /**
+     * This is messy. Should we have a pool of services?
+     */
+    timer: null,
+    storage: null,
+
+    io: null,
+    offline: null,
+    
+    //----------------------------
+    services: null,
+ 
     constructor: function(){
+        this.services = [];
+        
+        
         var world = new classes.sim.World();
         world.init();
         
@@ -229,23 +286,48 @@ dojo.declare("classes.Server", null, {
         this.addEvent(50, function(){
             this.save();
         });
+        //---------------------------------------------
+        //  services
+        //---------------------------------------------
         
-        this.io = new classes.IO();
+        //vvvvvvvvvvvvvvv 
+        /*this.io = new classes.IO();
+        this.offline = new classes.OfflineManager();*/
+        //^^^^^^^^^^^^^^
+        this.registerService("io", classes.IO);
+        this.registerService("offline", classes.OfflineManager);
+
         this.storage = new classes.Storage();
+ 
+    },
+    
+    registerService: function(name, clazz){
+        this.services[name] = new clazz();
+    },
+    
+    svc: function(name){
+        return this.services[name];
     },
 
     addEvent: function(delay, callback){
         this.timer.addEvent(dojo.hitch(this, callback), delay);
     },
-    
+
+    /**
+     * All load and reset logic should be performed in the main loop to avoid
+     * race condition issues
+     */
     load: function(){
-        this.storage.load();
-        dojo.publish("server/load", this);
+        this.timer.scheduleEvent(dojo.hitch(this, function(){
+            this.storage.load();
+            //TODO: pass server instance as well?
+            dojo.publish("server/load", this.storage.data);
+        }));
     },
 
     save: function(){
         console.log("saving...");
-        dojo.publish("server/save", this);
+        dojo.publish("server/save", this.storage.data);
         this.storage.save();  
     },
 
@@ -268,7 +350,13 @@ dojo.declare("classes.Server", null, {
         }
     },
 
+    /**
+     * Main server loop.
+     * 
+     */
     onTick: function() {
+        this.timer.updateScheduledEvents();
+        
         if (this.isPaused) {
             return;
         }
