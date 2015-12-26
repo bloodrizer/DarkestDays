@@ -38,6 +38,14 @@ dojo.declare("classes.Storage", null, {
     }
 });
 
+dojo.declare("mixin.IService", null, {
+    server: null,
+    
+    setServer: function(server){
+        this.server = server;
+    }
+});
+
 dojo.declare("mixin.IDataStorageAware", null, {
     constructor: function(){
         dojo.subscribe("server/save", dojo.hitch(this, this.save));
@@ -137,7 +145,7 @@ dojo.declare("classes.Timer", null, {
     
 });
 
-dojo.declare("classes.IO", [mixin.IDataStorageAware, mixin.IMessageAware], {
+dojo.declare("classes.IO", [mixin.IService, mixin.IDataStorageAware, mixin.IMessageAware], {
     peer: null,
     peerList: null,
     
@@ -222,7 +230,7 @@ dojo.declare("classes.IO", [mixin.IDataStorageAware, mixin.IMessageAware], {
     }
 });
 
-dojo.declare("classes.OfflineManager", [mixin.IDataStorageAware, mixin.IMessageAware], {
+dojo.declare("classes.OfflineManager", [mixin.IService, mixin.IDataStorageAware, mixin.IMessageAware], {
     save: function($data){
         $data["offline"] = {
             timestamp: Date.now()
@@ -289,11 +297,7 @@ dojo.declare("classes.Server", null, {
         //---------------------------------------------
         //  services
         //---------------------------------------------
-        
-        //vvvvvvvvvvvvvvv 
-        /*this.io = new classes.IO();
-        this.offline = new classes.OfflineManager();*/
-        //^^^^^^^^^^^^^^
+
         this.registerService("io", classes.IO);
         this.registerService("offline", classes.OfflineManager);
 
@@ -302,7 +306,11 @@ dojo.declare("classes.Server", null, {
     },
     
     registerService: function(name, clazz){
-        this.services[name] = new clazz();
+        //TODO: check for mixin.IService
+        var service = new clazz();
+        service.setServer(this);
+        
+        this.services[name] = service;
     },
     
     svc: function(name){

@@ -94,6 +94,57 @@ DDNetworkProfiler = React.createClass({
     }
 });
 
+
+//---------------   production queue start ---------------
+
+/**
+ * Production Queue Widget
+ */
+DDProductionQueue = React.createClass({
+    render: function() {
+        return $r("div", { className: "queue"}, [
+            $r("div", {}, "Production Queue"),
+            $r("div", {}, 
+                this.renderQueue()
+            )
+        ]);
+    },
+    
+    renderQueue: function(){
+        var queue = [];
+        
+        //TODO: use job widget
+        queue.push(
+            $r(DDProductionQueueJob, {
+                title: "Coal"
+            })
+        );
+
+        return queue;
+    }
+});
+
+/**
+ * Production Queue Job
+ */
+
+DDProductionQueueJob = React.createClass({
+
+    getDefaultProps: function() {
+        return {
+            title: "N/A"
+        }
+    },
+
+    render: function() {
+        return $r("div", {
+            className: "queue-job"
+        },  this.props.title);
+    }
+});
+
+//---------------   production queue end ---------------
+
 DDConsole = React.createClass({
     
     messages: [],
@@ -281,7 +332,8 @@ DDViewport = React.createClass({
                         $r("div", {className: "page-content"}, [
                             //-------------------------------------------- RIGHT goes there --------------------------
                             $r(DDGameProfiler, {}),
-                            $r(DDNetworkProfiler, {})
+                            $r(DDNetworkProfiler, {}),
+                            $r(DDProductionQueue, {})
                         ])
                     ])
                 ])

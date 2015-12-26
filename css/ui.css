@@ -73,6 +73,19 @@
     overflow-y: scroll;
 }
 
+/**
+*   Production queue           
+**/
+
+.queue {
+    padding-top: 20px;
+}
+
+.queue-job {
+    border: 1px solid gray;
+    padding: 5px;
+}
+
 /*------------ theme related stuff goes there -----------------*/
 
 
